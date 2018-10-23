@@ -7,7 +7,9 @@ package vista;
 
 import control.SystemEventsJpaController;
 import control.util.GestionArchivo;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import model.SystemEvents;
@@ -44,7 +46,22 @@ public class ConsultasLogAnalyzer {
                 case 1:
                     System.out.println("Escriba el nombre del host"); //algunos host registran los logs por ip
                     String host = scanner.next();
-                    getSystemEventsByHost(host);
+                    
+                    System.out.println("Fecha Desde: yyyy-MM-dd");
+                    String fdesde = scanner.next(); 
+                    System.out.println("Hora Desde: hh:mm:ss");
+                    String hdesde = scanner.next(); 
+                    Timestamp dtimestamp = Timestamp.valueOf(fdesde+" "+hdesde);
+                    Date ddate = new Date(dtimestamp.getTime());
+                   
+                    System.out.println("Fecha Hasta: yyyy-MM-dd");
+                    String fhasta = scanner.next(); 
+                    System.out.println("Hora Hasta: formato: hh:mm:ss");
+                    String hhasta = scanner.next(); 
+                    Timestamp htimestamp = Timestamp.valueOf(fhasta+" "+hhasta);
+                    Date hdate = new Date(htimestamp.getTime());
+                  
+                    getSystemEventsByHost(host, ddate, hdate);
                     break;
                 case 5:
                     System.out.println("ADIOS!!!");
@@ -62,8 +79,9 @@ public class ConsultasLogAnalyzer {
      *
      * @param host el nombre del host
      */
-    public static void getSystemEventsByHost(String host) {
-        List<SystemEvents> lista = systemEventsJpaController.getSystemEventsByHost(host);
+    public static void getSystemEventsByHost(String host, Date desde, Date hasta) {
+        //List<SystemEvents> lista = systemEventsJpaController.getSystemEventsByHost(host);
+        List<SystemEvents> lista = systemEventsJpaController.getSystemEventsByHostAndDate(host, desde, hasta);
 
         String encabezado = "1_receiveat,2_device_reported_time,3_facility,4_priority,5_message,"
                 + "6_info_unid_id,7_syslog_tag,8_process_id,9_checksum";
@@ -79,14 +97,14 @@ public class ConsultasLogAnalyzer {
         StringBuilder escriba = new StringBuilder();
 
         //INFORMACIÓN DEL LOG
-        escriba.append(systemEvents.getReceivedAt() + ","); //momento en que se recive el log
-        escriba.append(systemEvents.getDeviceReportedTime()+ ","); //momento en que el dispositivo genera el log 
-        escriba.append(systemEvents.getFacility() + ","); //???
-        escriba.append(systemEvents.getPriority()+ ","); //??
-        escriba.append(systemEvents.getMessage().replaceAll(","," ") + ","); //log
-        escriba.append(systemEvents.getInfoUnitID() + ","); //??
-        escriba.append(systemEvents.getSysLogTag() + ","); //??
-        escriba.append(systemEvents.getProcessid() + ","); //??
+        escriba.append(systemEvents.getReceivedAt()).append(","); //momento en que se recive el log
+        escriba.append(systemEvents.getDeviceReportedTime()).append(","); //momento en que el dispositivo genera el log 
+        escriba.append(systemEvents.getFacility()).append(","); //???
+        escriba.append(systemEvents.getPriority()).append(","); //??
+        escriba.append(systemEvents.getMessage().replaceAll(","," ")).append(","); //log
+        escriba.append(systemEvents.getInfoUnitID()).append(","); //??
+        escriba.append(systemEvents.getSysLogTag()).append(","); //??
+        escriba.append(systemEvents.getProcessid()).append(","); //??
         escriba.append(systemEvents.getChecksum()); //??
              
         return escriba.toString();

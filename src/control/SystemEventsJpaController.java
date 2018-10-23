@@ -7,6 +7,7 @@ package control;
 
 import control.exceptions.NonexistentEntityException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -144,6 +145,16 @@ public class SystemEventsJpaController implements Serializable {
         EntityManager em = getEntityManager();
         Query q = em.createNamedQuery("SystemEvents.findByFromHost");
         q.setParameter("fromHost", hostname);
+
+        return q.getResultList();
+    }
+    
+     public List<SystemEvents> getSystemEventsByHostAndDate(String hostname, Date desde, Date hasta) {
+        EntityManager em = getEntityManager();
+        Query q = em.createQuery("SELECT s FROM SystemEvents s WHERE s.fromHost = :fromHost AND (s.deviceReportedTime BETWEEN :desde AND :hasta)");//em.createNamedQuery("SystemEvents.findByFromHost");
+        q.setParameter("fromHost", hostname);
+        q.setParameter("desde", desde);
+        q.setParameter("hasta", hasta);
 
         return q.getResultList();
     }
